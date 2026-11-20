@@ -1,0 +1,698 @@
+Here’s a complete, self-contained 3-page version. Save it as `index.html` and open it in a browser. Enter **2011** to unlock; the cake page supports a button or optional microphone blow-out.
+
+```html name=index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07152f" />
+  <title>A Midnight Blue Birthday Surprise</title>
+  <style>
+    :root {
+      --navy: #07152f;
+      --blue: #70c8ff;
+      --pale: #d9f3ff;
+      --gold: #ffe2a6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #f5f8ff;
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--navy);
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      color: #092044;
+      background: linear-gradient(135deg, #d8f4ff, #78caff);
+      border-radius: 999px;
+      padding: 13px 22px;
+      box-shadow: 0 8px 26px #54b7ff42;
+      transition: transform .2s, filter .2s;
+    }
+
+    button:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    button:focus-visible, input:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+
+    .page {
+      display: none;
+      min-height: 100svh;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page.active { display: flex; }
+
+    /* Page 1: password and balloons */
+    #page-one {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 110%, #124477 0, transparent 53%),
+        linear-gradient(160deg, #050d20, #102852 70%, #08152d);
+    }
+
+    .stars, .stars::before, .stars::after {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(2px 2px at 15% 23%, #fff 50%, transparent 60%),
+        radial-gradient(1px 1px at 70% 17%, #cceeff 50%, transparent 60%),
+        radial-gradient(2px 2px at 84% 47%, #fff 50%, transparent 60%),
+        radial-gradient(1px 1px at 30% 65%, #d7edff 50%, transparent 60%);
+      opacity: .65;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -180px;
+      width: 68px;
+      height: 86px;
+      border-radius: 50% 50% 46% 46%;
+      background: radial-gradient(circle at 30% 24%, #d8f5ff, #6cc9ff 28%, #2272c4 78%);
+      box-shadow: inset -9px -10px 18px #041e4c66, 0 0 28px #62baff65;
+      animation: float-up linear infinite;
+      opacity: .88;
+    }
+
+    .balloon::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 9px;
+      left: 29px;
+      bottom: -5px;
+      background: #368bce;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      left: 33px;
+      top: 91px;
+      width: 1px;
+      height: 90px;
+      background: #d5eaff88;
+    }
+
+    @keyframes float-up {
+      to { transform: translateY(-125vh) rotate(8deg); }
+    }
+
+    .welcome-card {
+      z-index: 1;
+      width: min(440px, 100%);
+      padding: clamp(26px, 7vw, 48px);
+      border: 1px solid #c8e9ff45;
+      border-radius: 28px;
+      background: #07152fc9;
+      box-shadow: 0 20px 70px #0007, inset 0 0 35px #66bfff0d;
+      backdrop-filter: blur(12px);
+    }
+
+    .eyebrow {
+      color: #9bdcff;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font: 12px/1.5 system-ui, sans-serif;
+    }
+
+    h1, h2 { font-weight: 400; }
+
+    .welcome-card h1 {
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      margin: 12px 0;
+      color: #e8f7ff;
+      text-shadow: 0 0 28px #7bcaff8c;
+    }
+
+    .welcome-card p { color: #c9daef; line-height: 1.65; }
+
+    .password-row {
+      display: flex;
+      gap: 9px;
+      margin-top: 24px;
+    }
+
+    .password-row input {
+      min-width: 0;
+      flex: 1;
+      border: 1px solid #a8d7ff70;
+      border-radius: 999px;
+      padding: 13px 17px;
+      color: white;
+      background: #06112a;
+      text-align: center;
+      letter-spacing: .25em;
+    }
+
+    .message { min-height: 1.5em; color: #ffc9d4; font: 14px system-ui, sans-serif; }
+
+    /* Page 2: garden and letter */
+    #page-two {
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      padding: clamp(22px, 5vw, 58px) 16px 180px;
+      background:
+        radial-gradient(ellipse at 50% 100%, #154c67 0, transparent 55%),
+        linear-gradient(#07152f, #10284b 75%, #06162a);
+    }
+
+    #page-two.active { display: flex; }
+
+    .garden-glow {
+      position: absolute;
+      inset: auto -10% -90px;
+      height: 330px;
+      background: radial-gradient(ellipse, #1d7b91a6, transparent 68%);
+      z-index: -1;
+    }
+
+    .flower-field {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .tulip {
+      position: absolute;
+      bottom: -15px;
+      width: var(--size);
+      height: calc(var(--size) * 2.8);
+      transform-origin: bottom center;
+      animation: sway var(--sway) ease-in-out infinite alternate;
+      animation-delay: var(--delay);
+      filter: drop-shadow(0 0 8px #48baff70);
+    }
+
+    .tulip::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 3px;
+      height: 72%;
+      border-radius: 4px;
+      background: linear-gradient(#77d7b0, #176b65);
+    }
+
+    .tulip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 25px;
+      height: 26px;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 42% 42%;
+      background: radial-gradient(circle at 35% 25%, #f0fbff, #74ccff 35%, #246bb8 82%);
+      clip-path: polygon(0 36%, 22% 0, 43% 27%, 58% 0, 78% 24%, 100% 10%, 92% 78%, 70% 100%, 28% 100%, 7% 75%);
+    }
+
+    .tulip .leaf {
+      position: absolute;
+      bottom: 27%;
+      left: 50%;
+      width: 13px;
+      height: 28px;
+      border-radius: 100% 0 100% 0;
+      background: linear-gradient(135deg, #8ee4bd, #227968);
+      transform: rotate(-35deg);
+    }
+
+    @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(6deg); } }
+
+    .letter-card {
+      z-index: 1;
+      width: min(720px, 100%);
+      padding: clamp(22px, 5vw, 42px);
+      border: 1px solid #c6e8ff55;
+      border-radius: 24px;
+      background: #07152fe8;
+      box-shadow: 0 18px 60px #0008, 0 0 38px #4baaff1c;
+      backdrop-filter: blur(10px);
+    }
+
+    .letter-card h2 {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #a9e3ff;
+      font-size: clamp(1.7rem, 6vw, 2.5rem);
+    }
+
+    .letter-card p {
+      margin: 0;
+      color: #eff6ff;
+      font-size: clamp(1rem, 2.8vw, 1.14rem);
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+
+    .letter-card .signature { color: #a9ddff; margin-top: 18px; }
+
+    .page-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+
+    .secondary {
+      color: #e8f5ff;
+      background: #ffffff12;
+      border: 1px solid #c5e8ff67;
+      box-shadow: none;
+    }
+
+    /* Page 3: cake */
+    #page-three {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 32px 18px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 85%, #153b68 0, transparent 50%),
+        linear-gradient(160deg, #050d20, #10264b);
+    }
+
+    #page-three h2 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 7vw, 3.4rem);
+      color: #e4f6ff;
+      text-shadow: 0 0 24px #70c8ff77;
+    }
+
+    #page-three .intro { color: #c4d9ee; margin: 0 0 30px; }
+
+    .cake-scene {
+      position: relative;
+      width: min(360px, 88vw);
+      height: 310px;
+      margin: 0 auto 15px;
+    }
+
+    .cake-plate {
+      position: absolute;
+      bottom: 14px;
+      left: 5%;
+      width: 90%;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(#e9f4ff, #7798bf 55%, #dbeaff);
+      box-shadow: 0 12px 30px #0008;
+    }
+
+    .cake-bottom, .cake-top {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      overflow: hidden;
+      border-radius: 15px 15px 22px 22px;
+      box-shadow: inset 0 -12px 15px #8f354444, 0 10px 20px #0005;
+      background: linear-gradient(90deg, #b45c91, #f3a5cc 28%, #d872a7 70%, #a4477d);
+    }
+
+    .cake-bottom {
+      bottom: 38px;
+      width: 76%;
+      height: 105px;
+    }
+
+    .cake-top {
+      bottom: 136px;
+      width: 59%;
+      height: 78px;
+      background: linear-gradient(90deg, #b9dfff, #f2fbff 35%, #9dd5ff 75%, #6eb6ed);
+      border-radius: 15px 15px 19px 19px;
+      box-shadow: inset 0 -10px 12px #397bb044, 0 8px 18px #0005;
+    }
+
+    .icing {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 21px;
+      border-radius: 50%;
+      background: #fff3ff;
+      box-shadow: 0 7px 0 #f7d8f2;
+    }
+
+    .drip {
+      position: absolute;
+      top: 10px;
+      width: 15px;
+      height: 28px;
+      border-radius: 0 0 10px 10px;
+      background: #fff3ff;
+    }
+
+    .drip:nth-child(2) { left: 18%; height: 34px; }
+    .drip:nth-child(3) { left: 47%; height: 25px; }
+    .drip:nth-child(4) { right: 16%; height: 37px; }
+
+    .berry {
+      position: absolute;
+      top: 22px;
+      left: 25%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #70caff 24%, #1973bd 70%);
+      box-shadow: 0 0 12px #7dd5ff;
+    }
+
+    .berry:nth-child(2) { left: 47%; top: 15px; }
+    .berry:nth-child(3) { left: 68%; top: 25px; }
+
+    .candle {
+      position: absolute;
+      z-index: 2;
+      bottom: 207px;
+      width: 12px;
+      height: 56px;
+      border-radius: 4px;
+      background: repeating-linear-gradient(135deg, #fff 0 7px, #76caff 7px 13px);
+      box-shadow: 0 0 8px #d4f1ff88;
+    }
+
+    .candle.one { left: 37%; }
+    .candle.two { left: 49%; height: 68px; bottom: 207px; }
+    .candle.three { left: 61%; }
+
+    .flame {
+      position: absolute;
+      top: -22px;
+      left: 2px;
+      width: 9px;
+      height: 18px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      background: radial-gradient(circle at 65% 65%, #fff 0 12%, #fff8ac 30%, #ff9a37 72%);
+      box-shadow: 0 0 18px #ffc44d;
+      animation: flicker .16s ease-in-out infinite alternate;
+    }
+
+    .blown .flame { display: none; }
+
+    @keyframes flicker {
+      to { transform: rotate(-38deg) scale(.86); opacity: .8; }
+    }
+
+    .cake-message { min-height: 1.5em; color: #bde8ff; }
+
+    .confetti-piece {
+      position: fixed;
+      z-index: 5;
+      top: -20px;
+      width: 9px;
+      height: 14px;
+      animation: confetti-fall 3.3s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes confetti-fall {
+      to { transform: translate3d(var(--drift), 110vh, 0) rotate(780deg); opacity: .8; }
+    }
+
+    @media (max-width: 520px) {
+      .password-row { flex-direction: column; }
+      .password-row button { width: 100%; }
+      .letter-card { padding: 22px 19px; }
+      #page-two { padding-bottom: 145px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="page active" id="page-one" aria-label="Password entrance">
+      <div class="stars"></div>
+      <div class="welcome-card">
+        <div class="eyebrow">A little surprise for you</div>
+        <h1>Something lovely<br />is waiting…</h1>
+        <p>Enter the secret code to open your birthday surprise 💙</p>
+        <form class="password-row" id="unlock-form">
+          <input id="password" type="password" inputmode="numeric" autocomplete="off"
+            placeholder="Secret code" aria-label="Secret code" />
+          <button type="submit">Unlock ✨</button>
+        </form>
+        <div class="message" id="password-message" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-two" aria-label="Birthday letter and flower garden">
+      <div class="flower-field" id="flower-field" aria-hidden="true"></div>
+      <div class="garden-glow"></div>
+      <article class="letter-card">
+        <h2>Happy Birthday, dear! 💙</h2>
+        <p>Hey, dear!! 💗
+
+Today is your special day, and I genuinely hope it's as beautiful as you are. I still can't believe we've been friends for a year now! I'm so grateful that our paths crossed and that I got to meet someone as wonderful as you.
+
+Thank you for all the laughs, conversations, memories, and little moments. I hope you know how much I appreciate having you in my life. I wish you endless happiness, success, love, and everything your heart desires.
+
+May this new chapter bring you the most beautiful memories and countless reasons to smile. Here's to many more years of friendship, silly conversations, and unforgettable moments together.
+
+Happy birthday, dear!! I love you lots. Never forget how special you are. 💙</p>
+        <p class="signature">With lots of love 💌</p>
+        <div class="page-actions">
+          <button type="button" id="to-cake">Continue to your cake 🎂</button>
+          <button type="button" class="secondary" id="music-toggle" aria-pressed="false">Play soft music ♪</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="page" id="page-three" aria-label="Birthday cake">
+      <h2>Make a wish! ✨</h2>
+      <p class="intro">Take a deep breath and blow out your candles.</p>
+      <div class="cake-scene" id="cake">
+        <div class="candle one"><span class="flame"></span></div>
+        <div class="candle two"><span class="flame"></span></div>
+        <div class="candle three"><span class="flame"></span></div>
+        <div class="cake-top">
+          <span class="icing"></span><span class="drip"></span><span class="drip"></span><span class="drip"></span>
+          <span class="berry"></span><span class="berry"></span><span class="berry"></span>
+        </div>
+        <div class="cake-bottom">
+          <span class="icing"></span><span class="drip"></span><span class="drip"></span><span class="drip"></span>
+        </div>
+        <div class="cake-plate"></div>
+      </div>
+      <div class="cake-message" id="cake-message" role="status" aria-live="polite"></div>
+      <div class="page-actions">
+        <button type="button" id="blow-button">Blow out candles 🌬️</button>
+        <button type="button" class="secondary" id="mic-button">Use microphone</button>
+        <button type="button" class="secondary" id="replay-button">Replay from the beginning ↻</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const pages = [...document.querySelectorAll(".page")];
+
+    function showPage(number) {
+      pages.forEach((page, index) => {
+        page.classList.toggle("active", index === number - 1);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Create a drifting balloon display.
+    const entrance = document.getElementById("page-one");
+    for (let i = 0; i < 10; i++) {
+      const balloon = document.createElement("span");
+      balloon.className = "balloon";
+      balloon.style.left = `${5 + Math.random() * 90}%`;
+      balloon.style.animationDuration = `${14 + Math.random() * 15}s`;
+      balloon.style.animationDelay = `${-Math.random() * 24}s`;
+      balloon.style.transform = `scale(${0.65 + Math.random() * 0.65})`;
+      entrance.appendChild(balloon);
+    }
+
+    document.getElementById("unlock-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = document.getElementById("password");
+      const message = document.getElementById("password-message");
+      if (input.value.trim() === "2011") {
+        message.textContent = "";
+        showPage(2);
+        startMusic();
+      } else {
+        message.textContent = "That isn't the code—try again 💙";
+        input.select();
+      }
+    });
+
+    // Fill the garden with 310 softly glowing blue tulips.
+    const flowerField = document.getElementById("flower-field");
+    for (let i = 0; i < 310; i++) {
+      const flower = document.createElement("span");
+      flower.className = "tulip";
+      flower.style.left = `${Math.random() * 100}%`;
+      flower.style.setProperty("--size", `${10 + Math.random() * 11}px`);
+      flower.style.setProperty("--sway", `${2 + Math.random() * 3}s`);
+      flower.style.setProperty("--delay", `${-Math.random() * 4}s`);
+      flower.style.opacity = `${0.35 + Math.random() * 0.65}`;
+      flower.style.transform = `scale(${0.65 + Math.random() * 0.8})`;
+      flower.innerHTML = '<span class="leaf"></span>';
+      flowerField.appendChild(flower);
+    }
+
+    document.getElementById("to-cake").addEventListener("click", () => showPage(3));
+
+    // Gentle synthesized background tones; starts only after the visitor unlocks.
+    let audioContext;
+    let musicTimer;
+    let musicOn = false;
+    const musicButton = document.getElementById("music-toggle");
+    const notes = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
+    let noteIndex = 0;
+
+    function playNote(frequency) {
+      if (!audioContext || !musicOn) return;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.035, audioContext.currentTime + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 1.1);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 1.15);
+    }
+
+    function startMusic() {
+      if (musicOn) return;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioContext ||= new AudioContextClass();
+      audioContext.resume();
+      musicOn = true;
+      musicButton.textContent = "Pause soft music ♪";
+      musicButton.setAttribute("aria-pressed", "true");
+      playNote(notes[noteIndex++ % notes.length]);
+      musicTimer = setInterval(() => playNote(notes[noteIndex++ % notes.length]), 620);
+    }
+
+    function stopMusic() {
+      musicOn = false;
+      clearInterval(musicTimer);
+      musicButton.textContent = "Play soft music ♪";
+      musicButton.setAttribute("aria-pressed", "false");
+    }
+
+    musicButton.addEventListener("click", () => musicOn ? stopMusic() : startMusic());
+
+    function celebrate() {
+      const cake = document.getElementById("cake");
+      if (cake.classList.contains("blown")) return;
+      cake.classList.add("blown");
+      document.getElementById("cake-message").textContent =
+        "Your wish is on its way… Happy birthday! 💙";
+      document.getElementById("blow-button").textContent = "Candles blown out! ✨";
+      launchConfetti();
+    }
+
+    document.getElementById("blow-button").addEventListener("click", celebrate);
+
+    async function listenForBlowing() {
+      const micButton = document.getElementById("mic-button");
+      if (!navigator.mediaDevices?.getUserMedia || !window.AudioContext) {
+        document.getElementById("cake-message").textContent =
+          "Microphone isn't available here—use the blow-out button instead.";
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const context = new AudioContext();
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 512;
+        context.createMediaStreamSource(stream).connect(analyser);
+        const samples = new Uint8Array(analyser.fftSize);
+        micButton.textContent = "Listening… blow now 🌬️";
+        document.getElementById("cake-message").textContent = "Blow toward your microphone!";
+        let loudSamples = 0;
+
+        const checkVolume = setInterval(() => {
+          analyser.getByteTimeDomainData(samples);
+          let total = 0;
+          for (const sample of samples) total += Math.abs(sample - 128);
+          const volume = total / samples.length;
+          loudSamples = volume > 10 ? loudSamples + 1 : 0;
+
+          if (loudSamples >= 4) {
+            clearInterval(checkVolume);
+            stream.getTracks().forEach(track => track.stop());
+            context.close();
+            micButton.textContent = "Use microphone";
+            celebrate();
+          }
+        }, 120);
+
+        setTimeout(() => {
+          clearInterval(checkVolume);
+          stream.getTracks().forEach(track => track.stop());
+          context.close();
+          micButton.textContent = "Use microphone";
+          if (!document.getElementById("cake").classList.contains("blown")) {
+            document.getElementById("cake-message").textContent =
+              "Didn't catch a blow? Tap the button to blow out the candles.";
+          }
+        }, 12000);
+      } catch {
+        document.getElementById("cake-message").textContent =
+          "Microphone permission wasn't available—use the blow-out button instead.";
+      }
+    }
+
+    document.getElementById("mic-button").addEventListener("click", listenForBlowing);
+
+    function launchConfetti() {
+      const colors = ["#7ccfff", "#ffffff", "#ffe29a", "#a9e8d0", "#d9a8ff"];
+      for (let i = 0; i < 110; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty("--drift", `${(Math.random() - 0.5) * 220}px`);
+        piece.style.animationDelay = `${Math.random() * 1.2}s`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 5000);
+      }
+    }
+
+    document.getElementById("replay-button").addEventListener("click", () => {
+      document.getElementById("cake").classList.remove("blown");
+      document.getElementById("cake-message").textContent = "";
+      document.getElementById("blow-button").textContent = "Blow out candles 🌬️";
+      document.getElementById("password").value = "";
+      showPage(1);
+    });
+  </script>
+</body>
+</html>
+```
